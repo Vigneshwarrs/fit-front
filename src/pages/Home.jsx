@@ -171,7 +171,7 @@ const Home = () => {
             <Typography variant="h6" mb={2}>
               Workout Progress
             </Typography>
-            {data.workout && <WorkoutChart data={data.workout} />}
+            <WorkoutChart />
           </Paper>
         </Grid>
         <Grid item xs={12} md={6}>
@@ -185,7 +185,7 @@ const Home = () => {
             <Typography variant="h6" mb={2}>
               Nutrition Breakdown
             </Typography>
-            {data.calories && <FoodChart data={data.calories} />}
+            <FoodChart />
           </Paper>
         </Grid>
       </Grid>
