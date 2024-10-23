@@ -8,6 +8,12 @@ export const getSleep = () => {
     return api.get('/sleep');
 }
 
+export const getDailyNutrition = (date) => {
+    return api.get(`/nutrition/daily/${date}`);
+  };
+  export const getWorkoutByDate = (date) => {
+    return api.get(`/workout?date=${date}`);
+  };
 export const getSleepByDate = (date) => {
     return api.get(`/sleep/${date}`);
 }
