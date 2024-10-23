@@ -37,7 +37,7 @@ const waterSlice = createSlice({
   name: 'water',
   initialState: {
     currentDay: {
-      date: new Date(),
+      date: new Date().toISOString().split("T")[0],
       glassCount: 0,
       goal: 8,
     },
