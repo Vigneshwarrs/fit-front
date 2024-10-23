@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
-import { createNutrition, getFoodItems } from "../../services/nutritionService";
 import {
   TextField,
   Button,
@@ -27,10 +26,9 @@ import {
   Paper,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
+import { Add as AddIcon, Delete as DeleteIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
+import { createNutrition, getFoodItems } from "../../services/nutritionService";
 import { nutritionError, nutritionRequest, nutritionSuccess } from "../../redux/slice/nutritionSlice";
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const FoodForm = () => {
   const dispatch = useDispatch();
@@ -52,32 +50,34 @@ const FoodForm = () => {
       snacks: [],
     },
   };
+
   const getMealValidationSchema = () =>
     Yup.object({
       name: Yup.string().required("Food item is required"),
       customFoodName: Yup.string().when("name", {
         is: "Other",
-        then:()=> Yup.string().required("Custom food name is required"),
-        otherwise:()=> Yup.string().notRequired(),
+        then: () => Yup.string().required("Custom food name is required"),
+        otherwise: () => Yup.string().notRequired(),
       }),
       quantity: Yup.number().required("Quantity is required"),
       calories: Yup.number().when("name", {
         is: "Other",
-        then:()=> Yup.number().required("Calories are required"),
+        then: () => Yup.number().required("Calories are required"),
       }),
       protein: Yup.number().when("name", {
         is: "Other",
-        then:()=> Yup.number().required("Protein is required"),
+        then: () => Yup.number().required("Protein is required"),
       }),
       carbs: Yup.number().when("name", {
         is: "Other",
-        then:()=> Yup.number().required("Carbs are required"),
+        then: () => Yup.number().required("Carbs are required"),
       }),
       fat: Yup.number().when("name", {
         is: "Other",
-        then:()=> Yup.number().required("Fat is required"),
+        then: () => Yup.number().required("Fat is required"),
       }),
     });
+
   const validationSchema = Yup.object({
     date: Yup.date()
       .required("Date is required")
@@ -103,18 +103,17 @@ const FoodForm = () => {
     fetchFoodItems();
   }, [fetchFoodItems]);
 
-  const handleSubmit = async (values, {resetForm}) => {
+  const handleSubmit = async (values, { resetForm }) => {
     dispatch(nutritionRequest());
-    try{
+    try {
       const { data } = await createNutrition(values.date, values.meals);
       dispatch(nutritionSuccess(data));
-      // await dispatch(addNutrition(values.date, values.meals));
-      
-      setSnackbarMessage("Nutrition tracked successfully!"); // Set success message
-      setSnackbarOpen(true); // Open Snackbar
+
+      setSnackbarMessage("Nutrition tracked successfully!");
+      setSnackbarOpen(true);
       setSeverity(true);
       resetForm();
-    }catch(err) {
+    } catch (err) {
       dispatch(nutritionError(err));
       console.log(err);
       setSnackbarMessage("Nutrition not tracked");
@@ -124,9 +123,10 @@ const FoodForm = () => {
   };
 
   const handleSnackbarClose = () => {
-    setSnackbarOpen(false); // Close Snackbar
+    setSnackbarOpen(false);
   };
-return (
+
+  return (
     <>
       <Formik
         initialValues={initialValues}
@@ -137,31 +137,33 @@ return (
           <Form onSubmit={handleSubmit}>
             <Grid container mt={3} spacing={2} mb={3} justifyContent="center">
               <Grid item xs={12} sm={8} md={6}>
-                <DatePicker
-                  label="Select Date"
-                  value={date}
-                  onChange={(newValue) => {
-                    setDate(newValue);
-                    setFieldValue("date", newValue.toISOString().split("T")[0]);
-                  }}
-                  renderInput={(params) => (
-                    <TextField {...params} fullWidth />
-                  )}
-                />
-                <ErrorMessage name="date" component="div" className="error-message" />
+                <Paper elevation={3} sx={{ p: 2 }}>
+                  <DatePicker
+                    label="Select Date"
+                    value={date}
+                    onChange={(newValue) => {
+                      setDate(newValue);
+                      setFieldValue("date", newValue.toISOString().split("T")[0]);
+                    }}
+                    renderInput={(params) => (
+                      <TextField {...params} fullWidth />
+                    )}
+                  />
+                  <ErrorMessage name="date" component="div" className="error-message" />
+                </Paper>
               </Grid>
             </Grid>
 
             {["breakfast", "lunch", "dinner", "snacks"].map((mealType) => (
-              <Accordion key={mealType} sx={{ mb: 2, boxShadow: 2 }}>
+              <Accordion key={mealType} sx={{ mb: 2, boxShadow: 3 }}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Typography variant="h6" sx={{ fontWeight: "bold", color: "#4caf50", fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                     {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
                   </Typography>
-                  <Chip 
-                    label={`${values.meals[mealType].length} items`} 
-                    color="primary" 
-                    size="small" 
+                  <Chip
+                    label={`${values.meals[mealType].length} items`}
+                    color="primary"
+                    size="small"
                     sx={{ ml: 2 }}
                   />
                 </AccordionSummary>
@@ -371,9 +373,9 @@ return (
             {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
             <Grid container justifyContent="center" mt={3}>
               <Tooltip title="Track your nutrition" arrow>
-                <Button 
-                  type="submit" 
-                  variant="contained" 
+                <Button
+                  type="submit"
+                  variant="contained"
                   color="primary"
                   size={isMobile ? "medium" : "large"}
                   disabled={loading}
@@ -386,7 +388,7 @@ return (
           </Form>
         )}
       </Formik>
-      
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}

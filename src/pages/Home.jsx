@@ -93,7 +93,10 @@ const Home = () => {
           sleep: sleepRes.data,
           calories: nutritionRes.data,
         });
-        console.log(waterRes, workoutRes, sleepRes, nutritionRes);
+        console.log({water: waterRes.data,
+          workout: workoutRes.data,
+          sleep: sleepRes.data,
+          calories: nutritionRes.data});
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
