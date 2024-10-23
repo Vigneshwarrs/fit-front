@@ -400,7 +400,7 @@ const WorkoutForm = () => {
     duration: "",
     weightPerSet: "",
     caloriesBurned: "",
-    workoutDate: new Date.now(),
+    workoutDate: Date.now(),
   };
 
   const validationSchema = Yup.object().shape({
