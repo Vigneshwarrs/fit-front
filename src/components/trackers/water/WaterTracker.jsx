@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Card, CardContent, CardHeader, Button, Slider, Grid, Typography, Tooltip, Alert, CircularProgress } from '@mui/material';
-import { CalendarPicker } from '@mui/x-date-pickers';
+import { DatePicker } from '@mui/x-date-pickers';
 import { WaterDrop } from '@mui/icons-material';
 import { incrementGlass, decrementGlass, setGoal, setDate, updateWaterIntake, fetchWaterHistory } from '../../../redux/slice/waterSlice';
 //
@@ -33,7 +33,7 @@ export default function HydrationTracker() {
         <CardContent>
           {/* Date Selection */}
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
-            <CalendarPicker
+            <DatePicker
               date={currentDay.date}
               onChange={(date) => dispatch(setDate(date))}
             />
