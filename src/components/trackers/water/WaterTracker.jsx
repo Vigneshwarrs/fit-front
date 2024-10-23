@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Card, CardContent, CardHeader, Button, Slider, Grid, Typography, Tooltip, Alert, CircularProgress } from '@mui/material';
-import { CalendarPicker } from '@mui/lab';
+import { CalendarPicker } from '@mui/x-date-pickers';
 import { WaterDrop } from '@mui/icons-material';
 import { incrementGlass, decrementGlass, setGoal, setDate, updateWaterIntake, fetchWaterHistory } from '../../../redux/slice/waterSlice';
 //

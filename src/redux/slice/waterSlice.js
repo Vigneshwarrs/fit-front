@@ -26,7 +26,7 @@ export const updateWaterIntake = createAsyncThunk(
 export const fetchWaterHistory = createAsyncThunk(
   'water/fetchHistory',
   async (dateRange) => {
-    const response = await api.get('/water/history', {
+    const response = await api.get('/water/stats', {
       params: dateRange
     });
     return response.data;
