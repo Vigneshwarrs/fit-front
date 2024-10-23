@@ -38,11 +38,7 @@ const WorkoutForm = () => {
 
   const validationSchema = Yup.object().shape({
     workoutType: Yup.string().required("Workout type is required"),
-    workoutName: Yup.string().when('workoutType', {
-      is: 'other',
-      then: () => Yup.string().required("Workout name is required for 'Other' type"),
-      otherwise: () => Yup.string().required("Workout name is required"),
-    }),
+    workoutName: Yup.string().required("Workout name is required"),
     sets: Yup.number().when('workoutType', {
       is: 'strength',
       then:() => Yup.number()
@@ -254,6 +250,44 @@ const WorkoutForm = () => {
     }
   };
 
+  const renderWorkoutNameField = (setFieldValue) => {
+    if (workoutType === "other") {
+      return (
+        <TextField
+          fullWidth
+          label="Workout Name"
+          name="workoutName"
+          variant="outlined"
+          onChange={e => setFieldValue("workoutName", e.target.value)}
+          helperText={<ErrorMessage name="workoutName" />}
+        />
+      );
+    }
+
+    return (
+      <FormControl fullWidth variant="outlined">
+        <InputLabel>Workout Name</InputLabel>
+        <Field
+          as={Select}
+          name="workoutName"
+          label="Workout Name"
+          onChange={(e) => setFieldValue("workoutName", e.target.value)}
+          disabled={!workoutType}
+        >
+          <MenuItem value="">Select Workout Name</MenuItem>
+          {exercises
+            .filter((exercise) => exercise.workoutType === workoutType)
+            .map((exercise) => (
+              <MenuItem key={exercise._id} value={exercise.workoutName}>
+                {exercise.workoutName}
+              </MenuItem>
+            ))}
+        </Field>
+        <ErrorMessage name="workoutName" component="div" />
+      </FormControl>
+    );
+  };
+
   return (
     <Box sx={{ padding: '16px' }}>
       <Formik
@@ -292,26 +326,7 @@ const WorkoutForm = () => {
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel>Workout Name</InputLabel>
-                  <Field
-                    as={Select}
-                    name="workoutName"
-                    label="Workout Name"
-                    onChange={(e) => setFieldValue("workoutName", e.target.value)}
-                    disabled={!workoutType}
-                  >
-                    <MenuItem value="">Select Workout Name</MenuItem>
-                    {exercises
-                      .filter((exercise) => exercise.workoutType === workoutType)
-                      .map((exercise) => (
-                        <MenuItem key={exercise._id} value={exercise.workoutName}>
-                          {exercise.workoutName}
-                        </MenuItem>
-                      ))}
-                  </Field>
-                  <ErrorMessage name="workoutName" component="div" />
-                </FormControl>
+                {renderWorkoutNameField(setFieldValue)}
               </Grid>
 
               {renderWorkoutFields(values, setFieldValue)}

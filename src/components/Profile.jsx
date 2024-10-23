@@ -72,8 +72,6 @@ function ProfilePage() {
           <Box display="flex" justifyContent="center" mb={4}>
             <Avatar 
               alt={user.name} 
-              // src={`https://fit-back-nqqi.onrender.com${user?.profilePicture}`}
-              src={`http://localhost:5000${user?.profilePicture}`}
               sx={{ width: 100, height: 100 }} 
             />
           </Box>
