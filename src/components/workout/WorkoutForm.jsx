@@ -372,8 +372,16 @@ import {
   CircularProgress, 
   Alert,
   Snackbar,
-  Box
+  Box,
+  Paper,
+  Typography,
+  Container,
+  Divider
 } from "@mui/material";
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { FitnessCenter, DirectionsRun, More } from '@mui/icons-material';
 import { workoutFailure, workoutRequest, workoutSuccess, clearWorkoutState } from "../../redux/slice/workoutSlice";
 
 const WorkoutForm = () => {
@@ -392,11 +400,13 @@ const WorkoutForm = () => {
     duration: "",
     weightPerSet: "",
     caloriesBurned: "",
+    workoutDate: new Date.now(),
   };
 
   const validationSchema = Yup.object().shape({
     workoutType: Yup.string().required("Workout type is required"),
     workoutName: Yup.string().required("Workout name is required"),
+    workoutDate: Yup.date().required("Workout date is required"),
     sets: Yup.number().when('workoutType', {
       is: 'strength',
       then:() => Yup.number()
@@ -456,7 +466,6 @@ const WorkoutForm = () => {
         ...values,
         caloriesBurned: calCaloriesBurned,
       };
-      console.log(workoutData);
       const {data} = await addWorkout(workoutData);
       dispatch(workoutSuccess(data));
       setSnackbar({ open: true, message: "Workout added successfully!", severity: "success" });
@@ -466,6 +475,19 @@ const WorkoutForm = () => {
       console.error(err);
       dispatch(workoutFailure(err));
       setSnackbar({ open: true, message: "Failed to add workout. Please try again.", severity: "error" });
+    }
+  };
+
+  const getWorkoutTypeIcon = (type) => {
+    switch (type) {
+      case 'strength':
+        return <FitnessCenter />;
+      case 'cardio':
+        return <DirectionsRun />;
+      case 'other':
+        return <More />;
+      default:
+        return null;
     }
   };
 
@@ -520,7 +542,7 @@ const WorkoutForm = () => {
             <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
-                label="Weight per Set"
+                label="Weight per Set (kg)"
                 name="weightPerSet"
                 type="number"
                 variant="outlined"
@@ -553,6 +575,8 @@ const WorkoutForm = () => {
                 label="Description"
                 name="description"
                 variant="outlined"
+                multiline
+                rows={3}
                 onChange={e => setFieldValue("description", e.target.value)}
                 helperText={<ErrorMessage name="description" />}
               />
@@ -641,75 +665,129 @@ const WorkoutForm = () => {
               </MenuItem>
             ))}
         </Field>
-        <ErrorMessage name="workoutName" component="div" />
+        <ErrorMessage name="workoutName" component="div" className="error-message" />
       </FormControl>
     );
   };
 
   return (
-    <Box sx={{ padding: '16px' }}>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ values, setFieldValue, resetForm }) => (
-          <Form>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel>Workout Type</InputLabel>
-                  <Field
-                    as={Select}
-                    name="workoutType"
-                    label="Workout Type"
-                    onChange={(e) => {
-                      setWorkoutType(e.target.value);
-                      setFieldValue("workoutType", e.target.value);
-                      setFieldValue("workoutName", "");
-                      setFieldValue("sets", "");
-                      setFieldValue("reps", "");
-                      setFieldValue("weightPerSet", "");
-                      setFieldValue("duration", "");
-                      setFieldValue("caloriesBurned", "");
-                    }}
-                  >
-                    <MenuItem value="">Select Workout Type</MenuItem>
-                    <MenuItem value="strength">Strength</MenuItem>
-                    <MenuItem value="cardio">Cardio</MenuItem>
-                    <MenuItem value="other">Other</MenuItem>
-                  </Field>
-                  <ErrorMessage name="workoutType" component="div" />
-                </FormControl>
-              </Grid>
+    <Container maxWidth="lg">
+      <Paper elevation={3} sx={{ p: 4, mt: 4, borderRadius: 2 }}>
+        <Typography variant="h4" gutterBottom sx={{ mb: 4, fontWeight: 600, color: 'primary.main' }}>
+          Track Your Workout
+        </Typography>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ values, setFieldValue, resetForm }) => (
+              <Form>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel>Workout Type</InputLabel>
+                      <Field
+                        as={Select}
+                        name="workoutType"
+                        label="Workout Type"
+                        onChange={(e) => {
+                          setWorkoutType(e.target.value);
+                          setFieldValue("workoutType", e.target.value);
+                          setFieldValue("workoutName", "");
+                          setFieldValue("sets", "");
+                          setFieldValue("reps", "");
+                          setFieldValue("weightPerSet", "");
+                          setFieldValue("duration", "");
+                          setFieldValue("caloriesBurned", "");
+                        }}
+                      >
+                        <MenuItem value="">Select Workout Type</MenuItem>
+                        {['strength', 'cardio', 'other'].map((type) => (
+                          <MenuItem value={type} key={type}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              {getWorkoutTypeIcon(type)}
+                              <span style={{ textTransform: 'capitalize' }}>{type}</span>
+                            </Box>
+                          </MenuItem>
+                        ))}
+                      </Field>
+                      <ErrorMessage name="workoutType" component="div" className="error-message" />
+                    </FormControl>
+                  </Grid>
 
-              <Grid item xs={12} md={6}>
-                {renderWorkoutNameField(setFieldValue)}
-              </Grid>
+                  <Grid item xs={12} md={6}>
+                    <DatePicker
+                      label="Workout Date"
+                      value={values.workoutDate}
+                      onChange={(newValue) => {
+                        setFieldValue("workoutDate", newValue);
+                      }}
+                      renderInput={(params) => <TextField {...params} fullWidth />}
+                      maxDate={new Date()}
+                    />
+                    <ErrorMessage name="workoutDate" component="div" className="error-message" />
+                  </Grid>
 
-              {renderWorkoutFields(values, setFieldValue)}
+                  <Grid item xs={12} md={6}>
+                    {renderWorkoutNameField(setFieldValue)}
+                  </Grid>
 
-              <Grid item xs={12}>
-                <Button type="submit" variant="contained" color="primary" disabled={loading}>
-                  {loading ? <CircularProgress size={24} /> : "Track Workout"}
-                </Button>
-              </Grid>
-            </Grid>
-          </Form>
-        )}
-      </Formik>
+                  {workoutType && (
+                    <Grid item xs={12}>
+                      <Divider sx={{ my: 2 }}>
+                        <Typography variant="body2" color="textSecondary">
+                          Workout Details
+                        </Typography>
+                      </Divider>
+                    </Grid>
+                  )}
 
-      <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={6000} 
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+                  {renderWorkoutFields(values, setFieldValue)}
+
+                  <Grid item xs={12} sx={{ mt: 2 }}>
+                    <Button 
+                      type="submit" 
+                      variant="contained" 
+                      color="primary" 
+                      disabled={loading}
+                      size="large"
+                      fullWidth
+                      sx={{
+                        py: 1.5,
+                        fontSize: '1.1rem',
+                        textTransform: 'none',
+                        borderRadius: 2
+                      }}
+                    >
+                      {loading ? <CircularProgress size={24} /> : "Track Workout"}
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Form>
+            )}
+          </Formik>
+        </LocalizationProvider>
+
+        <Snackbar 
+          open={snackbar.open} 
+          autoHideDuration={6000} 
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert 
+            onClose={handleCloseSnackbar} 
+            severity={snackbar.severity} 
+            sx={{ width: '100%' }}
+            elevation={6}
+            variant="filled"
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Paper>
+    </Container>
   );
 };
 
