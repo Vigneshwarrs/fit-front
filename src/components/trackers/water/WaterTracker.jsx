@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, Button, Slider, Grid, Typography, Toolti
 import { CalendarPicker } from '@mui/lab';
 import { WaterDrop } from '@mui/icons-material';
 import { incrementGlass, decrementGlass, setGoal, setDate, updateWaterIntake, fetchWaterHistory } from '../../../redux/slice/waterSlice';
-
+//
 export default function HydrationTracker() {
   const dispatch = useDispatch();
-  const { currentDay, loading, error, stats } = useSelector((state) => state.hydration);
+  const { currentDay, loading, error, stats } = useSelector((state) => state.water);
   
   useEffect(() => {
     dispatch(fetchWaterHistory());
