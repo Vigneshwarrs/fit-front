@@ -42,7 +42,7 @@ const FoodForm = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const initialValues = {
-    date: new Date().toISOString().split("T")[0],
+    date: new Date(),
     meals: {
       breakfast: [],
       lunch: [],
