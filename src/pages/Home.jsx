@@ -99,10 +99,12 @@ const Home = () => {
       setIsLoading(false);
     }
   };
+  
 
   useEffect(() => {
+    console.log(data);
     fetchAllData();
-  }, []);
+  }, [data]);
 
   const metrics = [
     {
