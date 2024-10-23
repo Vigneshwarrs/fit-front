@@ -31,7 +31,6 @@ import { nutritionError, nutritionRequest, nutritionSuccess } from "../../redux/
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { formatISO } from "date-fns";
 
 const FoodForm = () => {
   const dispatch = useDispatch();
@@ -107,7 +106,7 @@ const FoodForm = () => {
   const handleSubmit = async (values, {resetForm}) => {
     dispatch(nutritionRequest());
     try{
-      const { data } = await createNutrition(formatISO(values.date), values.meals);
+      const { data } = await createNutrition(values.date, values.meals);
       dispatch(nutritionSuccess(data));
       // await dispatch(addNutrition(values.date, values.meals));
       
