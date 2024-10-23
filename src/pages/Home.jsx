@@ -114,7 +114,7 @@ const Home = () => {
     },
     {
       title: 'Calories Burned',
-      value: data.workout?.totalCalories || 0,
+      value: data.workout?.totalCaloriesBurned || 0,
       unit: 'kcal',
       icon: <LocalFireDepartmentRounded sx={{ color: '#4ECDC4' }} />,
       color: '#4ECDC4',

@@ -12,7 +12,7 @@ export const getDailyNutrition = (date) => {
     return api.get(`/nutrition/daily/${date}`);
   };
   export const getWorkoutByDate = (date) => {
-    return api.get(`/workout?date=${date}`);
+    return api.get(`/workout/${date}`);
   };
 export const getSleepByDate = (date) => {
     return api.get(`/sleep/${date}`);
