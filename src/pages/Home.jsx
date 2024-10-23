@@ -77,34 +77,34 @@ const Home = () => {
     calories: null,
   });
 
-  const fetchAllData = async () => {
-    setIsLoading(true);
-    try {
-      const [waterRes, workoutRes, sleepRes, nutritionRes] = await Promise.all([
-        getWaterByDate(formatISO(Date.now())),
-        getWorkoutByDate(formatISO(Date.now())),
-        getSleepByDate(formatISO(Date.now())),
-        getDailyNutrition(formatISO(Date.now())),
-      ]);
+    const fetchAllData = async () => {
+      setIsLoading(true);
+      try {
+        const [waterRes, workoutRes, sleepRes, nutritionRes] = await Promise.all([
+          getWaterByDate(formatISO(Date.now())),
+          getWorkoutByDate(formatISO(Date.now())),
+          getSleepByDate(formatISO(Date.now())),
+          getDailyNutrition(formatISO(Date.now())),
+        ]);
 
-      setData({
-        water: waterRes.data,
-        workout: workoutRes.data,
-        sleep: sleepRes.data,
-        calories: nutritionRes.data,
-      });
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        setData({
+          water: waterRes.data,
+          workout: workoutRes.data,
+          sleep: sleepRes.data,
+          calories: nutritionRes.data,
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
   
 
   useEffect(() => {
     console.log(data);
     fetchAllData();
-  }, [data]);
+  }, []);
 
   const metrics = [
     {

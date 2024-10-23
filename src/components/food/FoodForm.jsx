@@ -1,11 +1,15 @@
-import React, { useState } from "react";
-import { Formik, Form, ErrorMessage } from "formik";
+import React, { useEffect, useState, useCallback } from "react";
+import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
-import { createNutrition } from "../../services/nutritionService";
+import { createNutrition, getFoodItems } from "../../services/nutritionService";
 import {
   TextField,
   Button,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
   Grid,
   Typography,
   CircularProgress,
@@ -31,6 +35,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 const FoodForm = () => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.nutrition);
+  const [foodItems, setFoodItems] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [severity, setSeverity] = useState("success");
@@ -47,17 +52,32 @@ const FoodForm = () => {
       snacks: [],
     },
   };
-
   const getMealValidationSchema = () =>
     Yup.object({
-      name: Yup.string().required("Food item name is required"),
+      name: Yup.string().required("Food item is required"),
+      customFoodName: Yup.string().when("name", {
+        is: "Other",
+        then:()=> Yup.string().required("Custom food name is required"),
+        otherwise:()=> Yup.string().notRequired(),
+      }),
       quantity: Yup.number().required("Quantity is required"),
-      calories: Yup.number().required("Calories are required"),
-      protein: Yup.number().required("Protein is required"),
-      carbs: Yup.number().required("Carbs are required"),
-      fat: Yup.number().required("Fat is required"),
+      calories: Yup.number().when("name", {
+        is: "Other",
+        then:()=> Yup.number().required("Calories are required"),
+      }),
+      protein: Yup.number().when("name", {
+        is: "Other",
+        then:()=> Yup.number().required("Protein is required"),
+      }),
+      carbs: Yup.number().when("name", {
+        is: "Other",
+        then:()=> Yup.number().required("Carbs are required"),
+      }),
+      fat: Yup.number().when("name", {
+        is: "Other",
+        then:()=> Yup.number().required("Fat is required"),
+      }),
     });
-
   const validationSchema = Yup.object({
     date: Yup.date()
       .required("Date is required")
@@ -70,17 +90,33 @@ const FoodForm = () => {
     }),
   });
 
-  const handleSubmit = async (values, { resetForm }) => {
-    dispatch(nutritionRequest());
+  const fetchFoodItems = useCallback(async () => {
     try {
+      const response = await getFoodItems();
+      setFoodItems(response.data);
+    } catch (err) {
+      console.error("Error fetching food items:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchFoodItems();
+  }, [fetchFoodItems]);
+
+  const handleSubmit = async (values, {resetForm}) => {
+    dispatch(nutritionRequest());
+    try{
       const { data } = await createNutrition(values.date, values.meals);
       dispatch(nutritionSuccess(data));
-      setSnackbarMessage("Nutrition tracked successfully!");
-      setSnackbarOpen(true);
+      // await dispatch(addNutrition(values.date, values.meals));
+      
+      setSnackbarMessage("Nutrition tracked successfully!"); // Set success message
+      setSnackbarOpen(true); // Open Snackbar
       setSeverity(true);
       resetForm();
-    } catch (err) {
+    }catch(err) {
       dispatch(nutritionError(err));
+      console.log(err);
       setSnackbarMessage("Nutrition not tracked");
       setSnackbarOpen(true);
       setSeverity(false);
@@ -88,10 +124,9 @@ const FoodForm = () => {
   };
 
   const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
+    setSnackbarOpen(false); // Close Snackbar
   };
-
-  return (
+return (
     <>
       <Formik
         initialValues={initialValues}
@@ -131,165 +166,199 @@ const FoodForm = () => {
                   />
                 </AccordionSummary>
                 <AccordionDetails>
-                  <div>
-                    {values.meals[mealType].map((foodItem, index) => (
-                      <Grid container spacing={2} key={index} sx={{ mb: 3 }}>
+                  <FieldArray name={`meals.${mealType}`}>
+                    {({ remove, push }) => (
+                      <Grid container spacing={2}>
+                        {values.meals[mealType].map((foodItem, index) => (
+                          <Grid item xs={12} key={index}>
+                            <Paper elevation={2} sx={{ p: 2, position: 'relative' }}>
+                              <Grid container spacing={2}>
+                                <Grid item xs={12} sm={6}>
+                                  <FormControl fullWidth>
+                                    <InputLabel>Food Item</InputLabel>
+                                    <Field
+                                      as={Select}
+                                      name={`meals.${mealType}[${index}].name`}
+                                      label="Food Item"
+                                      onChange={(e) => {
+                                        setFieldValue(
+                                          `meals.${mealType}[${index}].name`,
+                                          e.target.value
+                                        );
+                                      }}
+                                    >
+                                      {foodItems
+                                        .filter((item) => item.mealType === mealType)
+                                        .map((item) => (
+                                          <MenuItem key={item._id} value={item.name}>
+                                            {item.name}
+                                          </MenuItem>
+                                        ))}
+                                      <MenuItem value="Other">Other</MenuItem>
+                                    </Field>
+                                  </FormControl>
+                                  <ErrorMessage
+                                    name={`meals.${mealType}[${index}].name`}
+                                    component="div"
+                                    className="error-message"
+                                  />
+                                </Grid>
+
+                                <Grid item xs={12} sm={6}>
+                                  <TextField
+                                    name={`meals.${mealType}[${index}].quantity`}
+                                    label="Quantity (g)"
+                                    type="number"
+                                    fullWidth
+                                    onChange={(e) => {
+                                      setFieldValue(
+                                        `meals.${mealType}[${index}].quantity`,
+                                        e.target.value
+                                      );
+                                    }}
+                                  />
+                                  <ErrorMessage
+                                    name={`meals.${mealType}[${index}].quantity`}
+                                    component="div"
+                                    className="error-message"
+                                  />
+                                </Grid>
+
+                                {values.meals[mealType][index].name === "Other" && (
+                                  <>
+                                    <Grid item xs={12}>
+                                      <TextField
+                                        name={`meals.${mealType}[${index}].customFoodName`}
+                                        label="Custom Food Name"
+                                        fullWidth
+                                        onChange={(e) => {
+                                          setFieldValue(
+                                            `meals.${mealType}[${index}].customFoodName`,
+                                            e.target.value
+                                          );
+                                        }}
+                                      />
+                                      <ErrorMessage
+                                        name={`meals.${mealType}[${index}].customFoodName`}
+                                        component="div"
+                                        className="error-message"
+                                      />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6} md={3}>
+                                      <TextField
+                                        name={`meals.${mealType}[${index}].calories`}
+                                        label="Calories"
+                                        type="number"
+                                        fullWidth
+                                        onChange={(e) => {
+                                          setFieldValue(
+                                            `meals.${mealType}[${index}].calories`,
+                                            e.target.value
+                                          );
+                                        }}
+                                      />
+                                      <ErrorMessage
+                                        name={`meals.${mealType}[${index}].calories`}
+                                        component="div"
+                                        className="error-message"
+                                      />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6} md={3}>
+                                      <TextField
+                                        name={`meals.${mealType}[${index}].protein`}
+                                        label="Protein (g)"
+                                        type="number"
+                                        fullWidth
+                                        onChange={(e) => {
+                                          setFieldValue(
+                                            `meals.${mealType}[${index}].protein`,
+                                            e.target.value
+                                          );
+                                        }}
+                                      />
+                                      <ErrorMessage
+                                        name={`meals.${mealType}[${index}].protein`}
+                                        component="div"
+                                        className="error-message"
+                                      />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6} md={3}>
+                                      <TextField
+                                        name={`meals.${mealType}[${index}].carbs`}
+                                        label="Carbs (g)"
+                                        type="number"
+                                        fullWidth
+                                        onChange={(e) => {
+                                          setFieldValue(
+                                            `meals.${mealType}[${index}].carbs`,
+                                            e.target.value
+                                          );
+                                        }}
+                                      />
+                                      <ErrorMessage
+                                        name={`meals.${mealType}[${index}].carbs`}
+                                        component="div"
+                                        className="error-message"
+                                      />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6} md={3}>
+                                      <TextField
+                                        name={`meals.${mealType}[${index}].fat`}
+                                        label="Fat (g)"
+                                        type="number"
+                                        fullWidth
+                                        onChange={(e) => {
+                                          setFieldValue(
+                                            `meals.${mealType}[${index}].fat`,
+                                            e.target.value
+                                          );
+                                        }}
+                                      />
+                                      <ErrorMessage
+                                        name={`meals.${mealType}[${index}].fat`}
+                                        component="div"
+                                        className="error-message"
+                                      />
+                                    </Grid>
+                                  </>
+                                )}
+                              </Grid>
+                              <IconButton
+                                color="error"
+                                onClick={() => remove(index)}
+                                sx={{ position: 'absolute', top: 8, right: 8 }}
+                                aria-label="Delete food item"
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </Paper>
+                          </Grid>
+                        ))}
                         <Grid item xs={12}>
-                          <Paper elevation={2} sx={{ p: 2, position: 'relative' }}>
-                            <Grid container spacing={2}>
-                              <Grid item xs={12} sm={6}>
-                                <TextField
-                                  name={`meals.${mealType}[${index}].name`}
-                                  label="Food Name"
-                                  fullWidth
-                                  onChange={(e) => {
-                                    setFieldValue(
-                                      `meals.${mealType}[${index}].name`,
-                                      e.target.value
-                                    );
-                                  }}
-                                />
-                                <ErrorMessage
-                                  name={`meals.${mealType}[${index}].name`}
-                                  component="div"
-                                  className="error-message"
-                                />
-                              </Grid>
-
-                              <Grid item xs={12} sm={6}>
-                                <TextField
-                                  name={`meals.${mealType}[${index}].quantity`}
-                                  label="Quantity (g)"
-                                  type="number"
-                                  fullWidth
-                                  onChange={(e) => {
-                                    setFieldValue(
-                                      `meals.${mealType}[${index}].quantity`,
-                                      e.target.value
-                                    );
-                                  }}
-                                />
-                                <ErrorMessage
-                                  name={`meals.${mealType}[${index}].quantity`}
-                                  component="div"
-                                  className="error-message"
-                                />
-                              </Grid>
-
-                              <Grid item xs={12} sm={6} md={3}>
-                                <TextField
-                                  name={`meals.${mealType}[${index}].calories`}
-                                  label="Calories"
-                                  type="number"
-                                  fullWidth
-                                  onChange={(e) => {
-                                    setFieldValue(
-                                      `meals.${mealType}[${index}].calories`,
-                                      e.target.value
-                                    );
-                                  }}
-                                />
-                                <ErrorMessage
-                                  name={`meals.${mealType}[${index}].calories`}
-                                  component="div"
-                                  className="error-message"
-                                />
-                              </Grid>
-
-                              <Grid item xs={12} sm={6} md={3}>
-                                <TextField
-                                  name={`meals.${mealType}[${index}].protein`}
-                                  label="Protein (g)"
-                                  type="number"
-                                  fullWidth
-                                  onChange={(e) => {
-                                    setFieldValue(
-                                      `meals.${mealType}[${index}].protein`,
-                                      e.target.value
-                                    );
-                                  }}
-                                />
-                                <ErrorMessage
-                                  name={`meals.${mealType}[${index}].protein`}
-                                  component="div"
-                                  className="error-message"
-                                />
-                              </Grid>
-
-                              <Grid item xs={12} sm={6} md={3}>
-                                <TextField
-                                  name={`meals.${mealType}[${index}].carbs`}
-                                  label="Carbs (g)"
-                                  type="number"
-                                  fullWidth
-                                  onChange={(e) => {
-                                    setFieldValue(
-                                      `meals.${mealType}[${index}].carbs`,
-                                      e.target.value
-                                    );
-                                  }}
-                                />
-                                <ErrorMessage
-                                  name={`meals.${mealType}[${index}].carbs`}
-                                  component="div"
-                                  className="error-message"
-                                />
-                              </Grid>
-
-                              <Grid item xs={12} sm={6} md={3}>
-                                <TextField
-                                  name={`meals.${mealType}[${index}].fat`}
-                                  label="Fat (g)"
-                                  type="number"
-                                  fullWidth
-                                  onChange={(e) => {
-                                    setFieldValue(
-                                      `meals.${mealType}[${index}].fat`,
-                                      e.target.value
-                                    );
-                                  }}
-                                />
-                                <ErrorMessage
-                                  name={`meals.${mealType}[${index}].fat`}
-                                  component="div"
-                                  className="error-message"
-                                />
-                              </Grid>
-                            </Grid>
-                            <IconButton
-                              color="error"
-                              onClick={() => values.meals[mealType].splice(index, 1)}
-                              sx={{ position: 'absolute', top: 8, right: 8 }}
-                              aria-label="Delete food item"
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </Paper>
+                          <Button
+                            startIcon={<AddIcon />}
+                            variant="outlined"
+                            color="primary"
+                            onClick={() =>
+                              push({
+                                name: "",
+                                customFoodName: "",
+                                quantity: "",
+                                calories: "",
+                                protein: "",
+                                carbs: "",
+                                fat: "",
+                              })
+                            }
+                            sx={{ mt: 2 }}
+                            fullWidth={isMobile}
+                          >
+                            Add Food Item
+                          </Button>
                         </Grid>
                       </Grid>
-                    ))}
-                    <Button
-                      startIcon={<AddIcon />}
-                      variant="outlined"
-                      color="primary"
-                      onClick={() => {
-                        const newMeals = [...values.meals[mealType]];
-                        newMeals.push({
-                          name: "",
-                          quantity: "",
-                          calories: "",
-                          protein: "",
-                          carbs: "",
-                          fat: "",
-                        });
-                        setFieldValue(`meals.${mealType}`, newMeals);
-                      }}
-                      sx={{ mt: 2 }}
-                      fullWidth={isMobile}
-                    >
-                      Add Food Item
-                    </Button>
-                  </div>
+                    )}
+                  </FieldArray>
                 </AccordionDetails>
               </Accordion>
             ))}
