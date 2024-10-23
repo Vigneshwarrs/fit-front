@@ -16,8 +16,6 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import {updateUserProfile} from '../services/userService';
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import {setUser} from "../redux/slice/authSlice";
 
 const validationSchema = yup.object({
   age: yup
@@ -42,8 +40,6 @@ const validationSchema = yup.object({
 });
 
 export default function ProfileSetupPage() {
-
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const formik = useFormik({
     initialValues: {
@@ -60,7 +56,6 @@ export default function ProfileSetupPage() {
       console.log("Profile setup:", values);
       await updateUserProfile(values)
       .then((response) => {
-          dispatch(setUser(response.data));
           console.log("Profile updated successfully:", response);
           navigate('/goal-setup');
         })

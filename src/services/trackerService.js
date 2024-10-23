@@ -9,7 +9,7 @@ export const getSleep = () => {
 }
 
 export const getSleepByDate = (date) => {
-    return api.get(`/sleep?date=${date}`);
+    return api.get(`/sleep/${date}`);
 }
 
 export const updateSleep = (data, object) => {
@@ -25,7 +25,7 @@ export const getWeights = () => {
 }
 
 export const getWeightByDate = (date) => {
-    return api.get(`/weight?date=${date}`);
+    return api.get(`/weight/${date}`);
 }
 
 export const createWeight = (object) => {
