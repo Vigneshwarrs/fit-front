@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '../../utils/api';
 import { addDays, startOfDay, format } from 'date-fns';
 
 // Async Thunks
 export const fetchWaterData = createAsyncThunk(
   'water/fetchWaterData',
   async () => {
-    const response = await axios.get('/api/water-tracking');
+    const response = await api.get('/water');
     return response.data;
   }
 );
@@ -14,7 +14,7 @@ export const fetchWaterData = createAsyncThunk(
 export const updateWaterIntake = createAsyncThunk(
   'water/updateWaterIntake',
   async ({ date, glassCount, goal }) => {
-    const response = await axios.post('/api/water-tracking', {
+    const response = await api.post('/water', {
       date,
       glassCount,
       goal
@@ -26,7 +26,7 @@ export const updateWaterIntake = createAsyncThunk(
 export const fetchWaterHistory = createAsyncThunk(
   'water/fetchHistory',
   async (dateRange) => {
-    const response = await axios.get('/api/water-tracking/history', {
+    const response = await api.get('/water/history', {
       params: dateRange
     });
     return response.data;
