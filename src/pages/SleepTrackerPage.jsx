@@ -6,7 +6,7 @@ import {
   Box,
   Grid,
   Divider
-} from '@/components/ui/mui';
+} from '@mui/material';
 import SleepForm from '../components/trackers/sleep/SleepTracker';
 import SleepChart from '../components/trackers/sleep/SleepChart';
 
