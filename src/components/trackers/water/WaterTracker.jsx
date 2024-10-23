@@ -41,8 +41,6 @@ const HydrationTracker = () => {
   const handleSave = async (values, { setSubmitting }) => {
     try {
       dispatch(waterRequest());
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
       const res = await createWater(values);
       dispatch(waterSuccess(res));
       setSnackbarMessage('Data saved successfully!');

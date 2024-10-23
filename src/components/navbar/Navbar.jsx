@@ -103,7 +103,6 @@ const Navbar = () => {
               <Avatar
                 alt={user?.name}
                 // src={`https://fit-back-nqqi.onrender.com${user?.profilePicture}`}
-                src={`https://fit-back-nqqi.onrender.com${user?.profilePicture}`}
                 sx={{ width: 40, height: 40 }}
               />
             </IconButton>
