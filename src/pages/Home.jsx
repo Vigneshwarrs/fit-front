@@ -1,84 +1,193 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Paper, Typography, Box } from '@mui/material';
+import { 
+  Grid, 
+  Paper, 
+  Typography, 
+  Box, 
+  Container,
+  CircularProgress,
+  IconButton,
+  Card,
+  CardContent,
+  useTheme,
+  useMediaQuery
+} from '@mui/material';
 import { styled } from '@mui/system';
-import { getSleepByDate, getWaterByDate } from '../services/trackerService';
-import { getWorkoutByDate } from '../services/workoutService';
+import { 
+  LocalDrinkRounded,
+  LocalFireDepartmentRounded,
+  RestaurantRounded,
+  NightsStayRounded,
+  RefreshRounded
+} from '@mui/icons-material';
 import { formatISO } from 'date-fns';
 import WorkoutChart from '../components/workout/WorkoutChart';
 import FoodChart from '../components/food/FoodChart';
-import { getDailyNutrition } from '../services/nutritionService';
-const Home = () => {
-  const[sleep, setSleep] = useState(null);
-  const [workout, setWorkout] = useState(null);
-  const [water, setWater] = useState(null);
-  const [caloies, setCalories] = useState(null);
+import { 
+  getSleepByDate, 
+  getWaterByDate,
+  getWorkoutByDate,
+  getDailyNutrition 
+} from '../services/trackerService';
 
-  useEffect(()=>{
-    async function fecthData() {
-      await getWaterByDate(formatISO(Date.now())).then((res)=>{
-        setWater(res.data);
-      }).catch((err)=>{
-        console.error(err);
-      });
-      await getWorkoutByDate(formatISO(Date.now())).then((res)=>{
-        setWorkout(res.data);
-      }).catch((err)=>{
-        console.error(err);
-      });
-      await getSleepByDate(formatISO(Date.now())).then((res)=>{
-        setSleep(res.data);
-      }).catch((err)=>{
-        console.error(err);
-      });
-      await getDailyNutrition(formatISO(Date.now())).then((res)=>{
-        setCalories(res.data);
-      }).catch((err)=>{
-        console.log(err);
-      });
-    }
-    fecthData();
-  }, []);
+const StyledCard = styled(Card)(({ theme }) => ({
+  height: '100%',
+  transition: 'transform 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-5px)',
+    boxShadow: theme.shadows[8],
+  },
+}));
 
-  const metrics = [
-    { title: 'Calories Consumed', value: caloies?.totalCalories || 0, unit: 'kcal' },
-    { title: 'Calories Burned', value: workout?.totalCalories || "0", unit: 'kcal' },
-    { title: 'Water Intake', value: (water?.glassCount * 250)/1000 || "0", unit: 'L' },
-    { title: 'Sleep Duration', value: sleep?.durtion || '0', unit: 'hours' },
-  ];
-
+const MetricCard = ({ title, value, unit, icon, color, isLoading }) => {
   return (
-    <Box sx={{ flexGrow: 1, p: 2 }}>
-      <Typography variant="h4" component="h1" gutterBottom align="center">
-        Your Daily Summary
-      </Typography>
-      <Grid container spacing={2}>
-        {metrics.map((metric, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <MetricCard title={metric.title} value={metric.value} unit={metric.unit} />
-          </Grid>
-        ))}
-      </Grid>
-        <WorkoutChart />
-        <FoodChart />
-    </Box>
+    <StyledCard>
+      <CardContent>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h6" color="textSecondary">
+            {title}
+          </Typography>
+          <Box sx={{ backgroundColor: `${color}20`, p: 1, borderRadius: '50%' }}>
+            {icon}
+          </Box>
+        </Box>
+        {isLoading ? (
+          <CircularProgress size={24} />
+        ) : (
+          <Typography variant="h4" component="div" fontWeight="bold">
+            {value}
+            <Typography variant="subtitle1" component="span" color="textSecondary">
+              {' '}{unit}
+            </Typography>
+          </Typography>
+        )}
+      </CardContent>
+    </StyledCard>
   );
 };
 
-const MetricCard = ({ title, value, unit }) => {
-  const Card = styled(Paper)({
-    padding: '20px',
-    textAlign: 'center',
-    color: '#fff',
-    backgroundColor: '#3f51b5',
+const Home = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState({
+    sleep: null,
+    workout: null,
+    water: null,
+    calories: null,
   });
 
+  const fetchAllData = async () => {
+    setIsLoading(true);
+    try {
+      const [waterRes, workoutRes, sleepRes, nutritionRes] = await Promise.all([
+        getWaterByDate(formatISO(Date.now())),
+        getWorkoutByDate(formatISO(Date.now())),
+        getSleepByDate(formatISO(Date.now())),
+        getDailyNutrition(formatISO(Date.now())),
+      ]);
+
+      setData({
+        water: waterRes.data,
+        workout: workoutRes.data,
+        sleep: sleepRes.data,
+        calories: nutritionRes.data,
+      });
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllData();
+  }, []);
+
+  const metrics = [
+    {
+      title: 'Calories Consumed',
+      value: data.calories?.totalCalories || 0,
+      unit: 'kcal',
+      icon: <RestaurantRounded sx={{ color: '#FF6B6B' }} />,
+      color: '#FF6B6B',
+    },
+    {
+      title: 'Calories Burned',
+      value: data.workout?.totalCalories || 0,
+      unit: 'kcal',
+      icon: <LocalFireDepartmentRounded sx={{ color: '#4ECDC4' }} />,
+      color: '#4ECDC4',
+    },
+    {
+      title: 'Water Intake',
+      value: ((data.water?.glassCount || 0) * 250 / 1000).toFixed(1),
+      unit: 'L',
+      icon: <LocalDrinkRounded sx={{ color: '#45B7D1' }} />,
+      color: '#45B7D1',
+    },
+    {
+      title: 'Sleep Duration',
+      value: data.sleep?.duration || 0,
+      unit: 'hours',
+      icon: <NightsStayRounded sx={{ color: '#96C' }} />,
+      color: '#96C',
+    },
+  ];
+
   return (
-    <Card elevation={3}>
-      <Typography variant="h6">{title}</Typography>
-      <Typography variant="h3" component="p">
-        {value} <Typography variant="body1" component="span">{unit}</Typography>
-      </Typography>
-    </Card>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+        <Typography variant="h4" component="h1" fontWeight="bold">
+          Your Daily Summary
+        </Typography>
+        <IconButton onClick={fetchAllData} color="primary">
+          <RefreshRounded />
+        </IconButton>
+      </Box>
+
+      <Grid container spacing={3} mb={4}>
+        {metrics.map((metric, index) => (
+          <Grid item xs={12} sm={6} md={3} key={index}>
+            <MetricCard
+              {...metric}
+              isLoading={isLoading}
+            />
+          </Grid>
+        ))}
+      </Grid>
+
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <Paper
+            sx={{
+              p: 3,
+              height: '100%',
+              minHeight: isMobile ? 300 : 400,
+            }}
+          >
+            <Typography variant="h6" mb={2}>
+              Workout Progress
+            </Typography>
+            {data.workout && <WorkoutChart data={data.workout} />}
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Paper
+            sx={{
+              p: 3,
+              height: '100%',
+              minHeight: isMobile ? 300 : 400,
+            }}
+          >
+            <Typography variant="h6" mb={2}>
+              Nutrition Breakdown
+            </Typography>
+            {data.calories && <FoodChart data={data.calories} />}
+          </Paper>
+        </Grid>
+      </Grid>
+    </Container>
   );
 };
 
