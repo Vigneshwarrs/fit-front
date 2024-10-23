@@ -3,7 +3,7 @@ import { Grid, Paper, Typography, Box } from '@mui/material';
 import { styled } from '@mui/system';
 import { getSleepByDate, getWaterByDate } from '../services/trackerService';
 import { getWorkoutByDate } from '../services/workoutService';
-import { formatISO, parseISO } from 'date-fns';
+import { formatISO } from 'date-fns';
 
 const Home = () => {
   // const {sleep} = useSelector((state)=>state.sleep);
