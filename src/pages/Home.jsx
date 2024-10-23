@@ -93,6 +93,7 @@ const Home = () => {
           sleep: sleepRes.data,
           calories: nutritionRes.data,
         });
+        console.log(waterRes, workoutRes, sleepRes, nutritionRes);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -102,7 +103,6 @@ const Home = () => {
   
 
   useEffect(() => {
-    console.log(data);
     fetchAllData();
   }, []);
 
