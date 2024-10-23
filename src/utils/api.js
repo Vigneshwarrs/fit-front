@@ -3,9 +3,8 @@ import store from '../redux/store';
 
 
 const api = axios.create({
-  // baseURL: 'https://fittrack-backend-mu3q.onrender.com/api',
-  baseURL: 'http://localhost:5000/api',
-  // baseURL: "https://fit-back-nqqi.onrender.com/api"
+  // baseURL: 'http://localhost:5000/api',
+  baseURL: "https://fit-back-nqqi.onrender.com/api"
 });
 
 api.interceptors.request.use((config) => {

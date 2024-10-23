@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// const API_URL = 'https://fit-back-nqqi.onrender.com/api/auth/';
-const API_URL = "http://localhost:5000/api/auth/";
+const API_URL = 'https://fit-back-nqqi.onrender.com/api/auth/';
+// const API_URL = "http://localhost:5000/api/auth/";
 
 export const signIn = (email, password) => {
   return axios.post(`${API_URL}sign-in`, { email, password });
