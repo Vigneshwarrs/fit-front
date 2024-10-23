@@ -97,9 +97,13 @@ const waterSlice = createSlice({
       })
       .addCase(updateWaterIntake.fulfilled, (state, action) => {
         state.loading = false;
-        state.history.push(action.payload);
+        if (Array.isArray(state.history)) {
+          state.history.push(action.payload);
+        } else {
+          state.history = [action.payload];
+        }
+        
         state.stats = calculateStats(state.history);
-        // Update chart data if the entry is for today
         if (isToday(new Date(action.payload.date))) {
           state.chartData = updateTodayInChartData(state.chartData, action.payload);
         }
