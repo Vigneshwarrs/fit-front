@@ -49,7 +49,6 @@ export default function ProfileSetupPage() {
       weight: "",
       country: "",
       activityLevel: "",
-      profilePicture: null,
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -65,9 +64,9 @@ export default function ProfileSetupPage() {
     },
   });
 
-  const handleProfilePictureChange = (event) => {
-    formik.setFieldValue("profilePicture", event.currentTarget.files[0]);
-  };
+  // const handleProfilePictureChange = (event) => {
+  //   formik.setFieldValue("profilePicture", event.currentTarget.files[0]);
+  // };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -172,7 +171,7 @@ export default function ProfileSetupPage() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            {/* <Grid item xs={12}>
               <Button variant="contained" component="label" fullWidth>
                 Upload Profile Picture
                 <input
@@ -186,7 +185,7 @@ export default function ProfileSetupPage() {
                   {formik.errors.profilePicture}
                 </Typography>
               )}
-            </Grid>
+            </Grid> */}
           </Grid>
           <Button
             type="submit"
