@@ -50,9 +50,8 @@ export const getWaters = () =>{
     return api.get('/water');
 }
 
-export const getWaterByDate = (date) => {
-    console.log('getWaterByDate', date);
-    return api.get(`/water/${date}`);
+export const getWaterByDate = () => {
+    return api.get(`/water/today`);
 }
 
 export const createWater = (object) => {

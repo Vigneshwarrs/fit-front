@@ -82,7 +82,7 @@ const Home = () => {
       try {
         const [waterRes, workoutRes, sleepRes, nutritionRes] = await Promise.all([
           getWaterByDate(formatISO(Date.now())),
-          getWorkoutByDate(formatISO(Date.now())),
+          getWorkoutByDate(),
           getSleepByDate(formatISO(Date.now())),
           getDailyNutrition(formatISO(Date.now())),
         ]);
