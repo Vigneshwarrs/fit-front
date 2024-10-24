@@ -1,10 +1,9 @@
-import axios from 'axios';
-import store from '../redux/store';
+import axios from "axios";
+import store from "../redux/store";
 
-
+export const baseURL = "https://fit-back-nqqi.onrender.com/api";
 const api = axios.create({
-  // baseURL: 'http://localhost:5000/api',
-  baseURL: "https://fit-back-nqqi.onrender.com/api"
+  baseURL,
 });
 
 api.interceptors.request.use((config) => {

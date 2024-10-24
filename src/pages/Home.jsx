@@ -133,7 +133,7 @@ const Home = () => {
     },
     {
       title: 'Sleep Duration',
-      value: Math.round(data.sleep?.duration/3600 )|| 0,
+      value: Math.round(data.sleep?.duration/3600)|| 0,
       unit: 'hours',
       icon: <NightsStayRounded sx={{ color: '#96C' }} />,
       color: '#96C',

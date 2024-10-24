@@ -1,12 +1,12 @@
-import api from '../utils/api';
+import api from "../utils/api";
 export const getWorkouts = () => {
-  return api.get('/workout');
+  return api.get("/workout");
 };
 export const addWorkout = (workout) => {
-  return api.post('/workout', workout);
+  return api.post("/workout", workout);
 };
 export const getExercises = () => {
-  return api.get('/workoutOption');
+  return api.get("/workoutOption");
 };
 
 export const getWorkoutByDate = (date) => {
