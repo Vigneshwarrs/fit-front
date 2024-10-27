@@ -45,15 +45,16 @@ const FoodSummary = () => {
     async function getFoodItems() {
         const response = await api.get("/nutrition");
         const res = await api.get("/suggestions");
-        console.log(res.data);
+        console.log("Food Summary",response.data);
         setPersonalisedSuggestions(res.data.personalizedSuggestions);
-        setNutritionData(response.data);
-        processMeals(response.data);
+        setNutritionData(response.data.data);
+        processMeals(response.data.data);
     }
     getFoodItems();
   },[]);
   const processMeals = (nutritionLogs) => {
     const today = new Date();
+    console.log("Food Summary", nutritionLogs);
     const filteredLogs = nutritionLogs.filter(log => {
       const logDate = new Date(log.date);
       return logDate.toDateString() === today.toDateString(); // Filtering for today's meals

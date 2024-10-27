@@ -19,7 +19,7 @@ import { createGoal } from '../../services/goalService';
 import { goalFailure, goalRequest, goalSuccess } from '../../redux/slice/goalSlice';
 
 const GoalForm = () => {
-  const user = useSelector(state => state.auth.user);
+  const {user} = useSelector(state => state.auth);
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.goal);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
@@ -37,8 +37,8 @@ const GoalForm = () => {
       targetMuscle: '',
       targetDate: '',
       description: '',
-      currentWeight: user?.weight || 70, // Assuming user weight is passed as prop
-      currentHeight: user?.height || 170, // Assuming user height is passed as prop
+      currentWeight: user.weight, 
+      currentHeight: user.height,
     },
     validationSchema: Yup.object({
       goalType: Yup.string().required('Goal type is required'),

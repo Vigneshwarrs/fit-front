@@ -55,7 +55,7 @@ const Navbar = () => {
       </Typography>
       <List>
         {menuItems.map((item) => (
-          <ListItem button key={item.text} component={Link} to={item.path}>
+          <ListItem key={item.text} component={Link} to={item.path}>
             <ListItemIcon>{item.icon}</ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItem>

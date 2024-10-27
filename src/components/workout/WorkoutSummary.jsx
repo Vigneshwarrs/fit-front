@@ -93,7 +93,7 @@ const WorkoutSummary = () => {
   const handleDelete = (workoutId) => {
     console.log('Deleting workout with ID:', workoutId);
   };
-
+  
   const WorkoutAccordion = ({ workout }) => (
     <Accordion>
       <AccordionSummary expandIcon={<ChevronDown />}>
@@ -103,25 +103,25 @@ const WorkoutSummary = () => {
       </AccordionSummary>
       <AccordionDetails>
         <Grid container spacing={2}>
-          <Grid item xs={12}>
+          <Grid xs={12}>
             <Typography variant="body2">{workout.description}</Typography>
           </Grid>
-          <Grid item container spacing={1}>
-            <Grid item>
+          <Grid container spacing={1}>
+            <Grid xs="auto">
               <Chip label={`${workout.sets} sets`} size="small" variant="outlined" />
             </Grid>
-            <Grid item>
+            <Grid xs="auto">
               <Chip label={`${workout.reps} reps`} size="small" variant="outlined" />
             </Grid>
-            <Grid item>
+            <Grid xs="auto">
               <Chip label={`${workout.weightPerSet} kg`} size="small" variant="outlined" />
             </Grid>
             {workout.duration && (
-              <Grid item>
+              <Grid xs="auto">
                 <Chip label={`${workout.duration} min`} size="small" variant="outlined" />
               </Grid>
             )}
-            <Grid item>
+            <Grid xs="auto">
               <Chip label={`${workout.caloriesBurned} kcal`} size="small" color="primary" />
             </Grid>
           </Grid>
@@ -137,6 +137,49 @@ const WorkoutSummary = () => {
       </AccordionDetails>
     </Accordion>
   );
+  // const WorkoutAccordion = ({ workout }) => (
+  //   <Accordion>
+  //     <AccordionSummary expandIcon={<ChevronDown />}>
+  //       <Typography variant="h6" sx={{ textTransform: 'capitalize' }}>
+  //         {workout.workoutName} - {workout.caloriesBurned} kcal
+  //       </Typography>
+  //     </AccordionSummary>
+  //     <AccordionDetails>
+  //       <Grid container spacing={2}>
+  //         <Grid item xs={12}>
+  //           <Typography variant="body2">{workout.description}</Typography>
+  //         </Grid>
+  //         <Grid item container spacing={1}>
+  //           <Grid item>
+  //             <Chip label={`${workout.sets} sets`} size="small" variant="outlined" />
+  //           </Grid>
+  //           <Grid item>
+  //             <Chip label={`${workout.reps} reps`} size="small" variant="outlined" />
+  //           </Grid>
+  //           <Grid item>
+  //             <Chip label={`${workout.weightPerSet} kg`} size="small" variant="outlined" />
+  //           </Grid>
+  //           {workout.duration && (
+  //             <Grid item>
+  //               <Chip label={`${workout.duration} min`} size="small" variant="outlined" />
+  //             </Grid>
+  //           )}
+  //           <Grid item>
+  //             <Chip label={`${workout.caloriesBurned} kcal`} size="small" color="primary" />
+  //           </Grid>
+  //         </Grid>
+  //       </Grid>
+  //       <Box sx={{ mt: 2 }}>
+  //         <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(workout)} size="small">
+  //           <EditIcon size={18} />
+  //         </IconButton>
+  //         <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(workout._id)} size="small">
+  //           <DeleteIcon size={18} />
+  //         </IconButton>
+  //       </Box>
+  //     </AccordionDetails>
+  //   </Accordion>
+  // );
 
   return (
     <Card elevation={3} sx={{ maxWidth: 600, margin: 'auto', mt: 4 }}>

@@ -145,9 +145,7 @@ const FoodForm = () => {
                       setDate(newValue);
                       setFieldValue("date", newValue.toISOString().split("T")[0]);
                     }}
-                    renderInput={(params) => (
-                      <TextField {...params} fullWidth />
-                    )}
+                    slotProps={{ textField: { variant: 'outlined' } }}
                   />
                   <ErrorMessage name="date" component="div" className="error-message" />
                 </Paper>

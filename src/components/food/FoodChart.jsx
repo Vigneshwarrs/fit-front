@@ -1,330 +1,196 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Bar } from 'react-chartjs-2';
+import React, { useState, useEffect } from 'react';
 import {
-  Chart,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { getNutrition } from '../../services/nutritionService';
-import {
-  Typography,
-  CircularProgress,
-  Grid,
-  Button,
-  Snackbar,
   Box,
-  CssBaseline,
+  Card,
+  CardContent,
+  CircularProgress,
   Alert,
-  TextField,
-  useTheme,
-  useMediaQuery,
+  Typography,
+  Grid,
+  Select,
+  MenuItem,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { 
-  format, 
-  subDays, 
-  subWeeks, 
-  subMonths, 
-  eachDayOfInterval, 
-  eachWeekOfInterval, 
-  eachMonthOfInterval, 
-  isAfter,
-  parseISO 
-} from 'date-fns';
+import { Line } from 'react-chartjs-2';
+import { format, subDays, subWeeks, subMonths } from 'date-fns';
+import api from '../../utils/api';
+import 'chart.js/auto';
 
-Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+const NutritionChart = () => {
+  const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [timeFilter, setTimeFilter] = useState('lastWeek');
+  const [nutritionMetric, setNutritionMetric] = useState('calories');
+  const [totals, setTotals] = useState({
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0
+  });
 
-
-const StyledButton = styled(Button)(({ theme, active }) => ({
-  backgroundColor: active ? theme.palette.primary.main : theme.palette.background.default,
-  color: active ? theme.palette.primary.contrastText : theme.palette.text.primary,
-  '&:hover': {
-    backgroundColor: active ? theme.palette.primary.dark : theme.palette.action.hover,
-  },
-  borderRadius: theme.shape.borderRadius * 1.5,
-  textTransform: 'capitalize',
-  padding: theme.spacing(1, 2),
-}));
-
-const FoodChart = () => {
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const [chartData, setChartData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [timeFilter, setTimeFilter] = useState('lastWeek');
-    const [customStartDate, setCustomStartDate] = useState('');
-    const [customEndDate, setCustomEndDate] = useState('');
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [totalCaloriesConsumed, setTotalCaloriesConsumed] = useState(0);
-
-  const fetchNutritionData = async (dateRange) => {
-    try {
-      const response = await getNutrition();
-      const nutritionLogs = response.data;
-
-      const filteredLogs = nutritionLogs.filter(log => {
-        const logDate = new Date(log.date);
-        return logDate >= dateRange[0] && logDate <= dateRange[1];
-      });
-
-      return filteredLogs;
-    } catch (error) {
-      setError('Error fetching nutrition data. Please try again later.');
-      setLoading(false);
-      setSnackbarOpen(true);
-      return [];
-    }
-  };
-
-  const getDateRange = useMemo(() => (filter) => {
+  const getDateRange = (filter) => {
     const today = new Date();
-    const endOfToday = new Date(today.setHours(23, 59, 59, 999));
     switch (filter) {
       case 'lastWeek':
-        return [subDays(endOfToday, 6), endOfToday];
+        return { startDate: format(subDays(today, 7), 'yyyy-MM-dd'), endDate: format(today, 'yyyy-MM-dd') };
       case 'lastMonth':
-        return [subWeeks(today, 4), endOfToday];
+        return { startDate: format(subWeeks(today, 4), 'yyyy-MM-dd'), endDate: format(today, 'yyyy-MM-dd') };
       case 'last6Months':
-        return [subMonths(today, 6), endOfToday];
-      case 'custom':
-        return [customStartDate ? parseISO(customStartDate) : null, 
-                customEndDate ? parseISO(customEndDate) : null];
+        return { startDate: format(subMonths(today, 6), 'yyyy-MM-dd'), endDate: format(today, 'yyyy-MM-dd') };
       default:
-        return [subDays(endOfToday, 6), endOfToday];
+        return { startDate: format(subDays(today, 7), 'yyyy-MM-dd'), endDate: format(today, 'yyyy-MM-dd') };
     }
-  }, [customStartDate, customEndDate]);
-
-  const getChartOptions = useMemo(() => (title) => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: !isMobile,
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: title,
-        color: theme.palette.text.primary,
-        font: {
-          size: isMobile ? 14 : 16,
-        },
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => `${context.dataset.label}: ${context.raw} kcal`,
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: !isMobile,
-          text: 'Calories',
-          color: theme.palette.text.secondary,
-        },
-        ticks: {
-          color: theme.palette.text.secondary,
-          font: {
-            size: isMobile ? 10 : 12,
-          },
-        },
-      },
-      x: {
-        ticks: {
-          color: theme.palette.text.secondary,
-          maxRotation: isMobile ? 90 : 45,
-          minRotation: isMobile ? 90 : 45,
-          font: {
-            size: isMobile ? 8 : 10,
-          },
-        },
-      },
-    },
-  }), [theme, isMobile]);
+  };
 
   useEffect(() => {
-    const dateRange = getDateRange(timeFilter);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const { startDate, endDate } = getDateRange(timeFilter);
+        const response = await api(
+          `/nutrition?startDate=${startDate}&endDate=${endDate}&limit=100`
+        );
 
-    if (timeFilter === 'custom') {
-      if (!customStartDate || !customEndDate) {
+        if (!response.ok) throw new Error('Failed to fetch nutrition data');
+        
+        const {data} = await response;
+        
+        // Process the data for the chart
+        const processedData = data.data.map(entry => ({
+          date: format(new Date(entry.date), 'MMM dd'),
+          calories: entry.totalCalories,
+          protein: entry.totalProtein,
+          carbs: entry.totalCarbs,
+          fat: entry.totalFat
+        }));
+
+        // Calculate totals
+        const newTotals = data.data.reduce((acc, entry) => ({
+          calories: acc.calories + entry.totalCalories,
+          protein: acc.protein + entry.totalProtein,
+          carbs: acc.carbs + entry.totalCarbs,
+          fat: acc.fat + entry.totalFat
+        }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
+
+        setChartData(processedData);
+        setTotals(newTotals);
+        setError(null);
+      } catch (err) {
+        setError(err.message);
+      } finally {
         setLoading(false);
-        return;
       }
-      if (isAfter(parseISO(customStartDate), parseISO(customEndDate))) {
-        setError('Start date must be before end date');
-        setSnackbarOpen(true);
-        setLoading(false);
-        return;
-      }
-    }
-
-    const processChartData = (filteredLogs) => {
-      const groupedByDate = {};
-
-      const fillMissingDates = (interval, formatStr) => {
-        interval.forEach((date, index) => {
-          const key = formatStr === 'Week' 
-            ? `Week ${index + 1}`
-            : format(date, formatStr);
-          groupedByDate[key] = 0;
-        });
-      };
-
-      if (timeFilter === 'lastWeek') {
-        fillMissingDates(eachDayOfInterval({ start: dateRange[0], end: dateRange[1] }), 'yyyy-MM-dd');
-      } else if (timeFilter === 'lastMonth') {
-        fillMissingDates(eachWeekOfInterval({ start: dateRange[0], end: dateRange[1] }), 'Week');
-      } else if (timeFilter === 'last6Months') {
-        fillMissingDates(eachMonthOfInterval({ start: dateRange[0], end: dateRange[1] }), 'MMM yyyy');
-      }
-
-      let total = 0;
-      filteredLogs.forEach(log => {
-        const logDate = new Date(log.date);
-        let key;
-        if (timeFilter === 'lastWeek') {
-          key = format(logDate, 'yyyy-MM-dd');
-        } else if (timeFilter === 'lastMonth') {
-          const weekStart = format(subDays(logDate, logDate.getDay()), 'yyyy-MM-dd');
-          key = Object.keys(groupedByDate).find(k => k.includes(weekStart));
-        } else if (timeFilter === 'last6Months') {
-          key = format(logDate, 'MMM yyyy');
-        }
-        const dayCalories = log.meals.reduce((sum, meal) => sum + meal.totalCalories, 0);
-        groupedByDate[key] += dayCalories;
-        total += dayCalories;
-      });
-
-      setTotalCaloriesConsumed(total);
-
-      const labels = Object.keys(groupedByDate);
-      const caloriesConsumed = labels.map(label => groupedByDate[label]);
-
-      const data = {
-        labels,
-        datasets: [
-          {
-            label: 'Calories Consumed',
-            data: caloriesConsumed,
-            backgroundColor: theme.palette.primary.main,
-            borderColor: theme.palette.primary.dark,
-            borderWidth: 1,
-          },
-        ],
-      };
-
-      setChartData({ data, options: getChartOptions('Calories Consumed') });
     };
 
-    setLoading(true);
-    fetchNutritionData(dateRange)
-      .then(filteredLogs => {
-        processChartData(filteredLogs);
-        setLoading(false);
-      });
-  }, [timeFilter, customStartDate, customEndDate, theme, getChartOptions, getDateRange]);
+    fetchData();
+  }, [timeFilter]);
 
-  const handleCustomStartDateChange = (event) => {
-    setCustomStartDate(event.target.value);
+  const metrics = [
+    { key: 'calories', label: 'Calories', color: '#2563eb' },
+    { key: 'protein', label: 'Protein', color: '#16a34a' },
+    { key: 'carbs', label: 'Carbs', color: '#dc2626' },
+    { key: 'fat', label: 'Fat', color: '#ca8a04' }
+  ];
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="300px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert severity="error" sx={{ mb: 4 }}>
+        {error}
+      </Alert>
+    );
+  }
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { display: true, position: 'top' },
+      tooltip: { mode: 'index', intersect: false },
+    },
+    scales: {
+      x: { title: { display: true, text: 'Date' } },
+      y: { title: { display: true, text: 'Amount' } },
+    },
   };
 
-  const handleCustomEndDateChange = (event) => {
-    setCustomEndDate(event.target.value);
+  const chartDataConfig = {
+    labels: chartData.map((entry) => entry.date),
+    datasets: metrics
+      .filter((metric) => nutritionMetric === metric.key)
+      .map((metric) => ({
+        label: metric.label,
+        data: chartData.map((entry) => entry[metric.key]),
+        borderColor: metric.color,
+        backgroundColor: `${metric.color}33`,
+        fill: true,
+        lineTension: 0.2,
+      })),
   };
-
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
-  const timeFilters = ['lastWeek', 'lastMonth', 'last6Months', 'custom'];
 
   return (
-    <>
-      <CssBaseline />
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <Typography variant="h6" gutterBottom color="textSecondary" fontSize={isMobile ? '1rem' : '1.25rem'}>
-            Select Time Filter
-          </Typography>
-          <Grid container spacing={1}>
-            {timeFilters.map((filter) => (
-              <Grid item key={filter} xs={6} sm={3}>
-                <StyledButton
-                  fullWidth
-                  active={timeFilter === filter ? timeFilter.toString() : null}
-                  onClick={() => setTimeFilter(filter)}
-                  aria-label={`Set time filter to ${filter}`}
-                >
-                  {filter}
-                </StyledButton>
-              </Grid>
-            ))}
-          </Grid>
-        </Grid>
+    <Card sx={{ p: 4 }}>
+      <CardContent>
+        <Box mb={4}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="h6">Time Range</Typography>
+              <Select
+                value={timeFilter}
+                onChange={(e) => setTimeFilter(e.target.value)}
+                fullWidth
+              >
+                <MenuItem value="lastWeek">Last Week</MenuItem>
+                <MenuItem value="lastMonth">Last Month</MenuItem>
+                <MenuItem value="last6Months">Last 6 Months</MenuItem>
+              </Select>
+            </Grid>
 
-        {timeFilter === 'custom' && (
-          <Grid item xs={12}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  type="date"
-                  label="Start Date"
-                  onChange={handleCustomStartDateChange}
-                  value={customStartDate}
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                  aria-label="Select start date for custom range"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  type="date"
-                  label="End Date"
-                  onChange={handleCustomEndDateChange}
-                  value={customEndDate}
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                  aria-label="Select end date for custom range"
-                />
-              </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="h6">Metric</Typography>
+              <Select
+                value={nutritionMetric}
+                onChange={(e) => setNutritionMetric(e.target.value)}
+                fullWidth
+              >
+                {metrics.map((metric) => (
+                  <MenuItem key={metric.key} value={metric.key}>
+                    {metric.label}
+                  </MenuItem>
+                ))}
+              </Select>
             </Grid>
           </Grid>
-        )}
-      </Grid>
+        </Box>
 
-      <Box mt={4} height={isMobile ? 300 : 400}>
-        {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-            <CircularProgress size={isMobile ? 40 : 60} thickness={4} />
-          </Box>
-        ) : (
-          chartData && (
-            <>
-              <Box height="100%">
-                <Bar data={chartData.data} options={chartData.options} aria-label="Calories consumed chart" />
+        <Box height={400}>
+          <Line data={chartDataConfig} options={chartOptions} />
+        </Box>
+
+        <Grid container spacing={2} mt={4}>
+          {metrics.map(({ key, label, color }) => (
+            <Grid item xs={6} md={3} key={key}>
+              <Box p={2} border={`1px solid ${color}`} borderRadius={2}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  {label} Total
+                </Typography>
+                <Typography variant="h6">
+                  {totals[key].toLocaleString()} {key === 'calories' ? 'kcal' : 'g'}
+                </Typography>
               </Box>
-              <Typography variant="h6" align="center" color="textSecondary" fontSize={isMobile ? '1rem' : '1.25rem'} mt={2}>
-                Total Calories Consumed: {totalCaloriesConsumed.toLocaleString()} kcal
-              </Typography>
-            </>
-          )
-        )}
-      </Box>
-
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity="error">
-          {error}
-        </Alert>
-      </Snackbar>
-    </>
+            </Grid>
+          ))}
+        </Grid>
+      </CardContent>
+    </Card>
   );
 };
 
-export default FoodChart;
+export default NutritionChart;
+

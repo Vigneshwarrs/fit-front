@@ -96,7 +96,7 @@ const Home = () => {
         console.log({water: waterRes.data,
           workout: workoutRes.data,
           sleep: sleepRes.data,
-          calories: nutritionRes.data});
+          calories: nutritionRes});
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -133,7 +133,7 @@ const Home = () => {
     },
     {
       title: 'Sleep Duration',
-      value: (data.sleep?.duration/60).toFixed(2)|| 0,
+      value: data.sleep?.duration || 0,
       unit: 'hours',
       icon: <NightsStayRounded sx={{ color: '#96C' }} />,
       color: '#96C',

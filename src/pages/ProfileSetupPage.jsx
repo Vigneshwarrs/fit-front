@@ -25,6 +25,8 @@ import { updateUserProfile } from '../services/userService';
 import { useNavigate } from "react-router-dom";
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/slice/authSlice";
 
 const activityLevelInfo = {
   sedentary: "Little or no exercise, desk job",
@@ -34,28 +36,50 @@ const activityLevelInfo = {
   extraActive: "Very heavy exercise, physical job or training twice per day"
 };
 
-const validationSchema = yup.object({
-  age: yup
-    .number()
-    .required("Age is required")
-    .min(1, "Age must be greater than 0")
-    .max(120, "Age must be less than 120"),
-  gender: yup.string().required("Gender is required"),
-  height: yup
-    .number()
-    .required("Height is required")
-    .min(30, "Height must be greater than 30 cm")
-    .max(300, "Height must be less than 300 cm"),
-  weight: yup
-    .number()
-    .required("Weight is required")
-    .min(1, "Weight must be greater than 1 kg")
-    .max(300, "Weight must be less than 300 kg"),
-  country: yup.string().required("Country is required"),
-  activityLevel: yup.string().required("Activity level is required"),
-});
+// const validationSchema = yup.object({
+//   age: yup
+//     .number()
+//     .required("Age is required")
+//     .min(1, "Age must be greater than 0")
+//     .max(120, "Age must be less than 120"),
+//   gender: yup.string().required("Gender is required"),
+//   height: yup
+//     .number()
+//     .required("Height is required")
+//     .min(30, "Height must be greater than 30 cm")
+//     .max(300, "Height must be less than 300 cm"),
+//   weight: yup
+//     .number()
+//     .required("Weight is required")
+//     .min(1, "Weight must be greater than 1 kg")
+//     .max(300, "Weight must be less than 300 kg"),
+//   country: yup.string().required("Country is required"),
+//   activityLevel: yup.string().required("Activity level is required"),
+// });
+const getValidationSchema = (step) => {
+  switch (step) {
+    case 0:
+      return yup.object({
+        age: yup.number().required("Age is required").min(1).max(120),
+        gender: yup.string().required("Gender is required"),
+        country: yup.string().required("Country is required"),
+      });
+    case 1:
+      return yup.object({
+        height: yup.number().required("Height is required").min(30).max(300),
+        weight: yup.number().required("Weight is required").min(1).max(300),
+      });
+    case 2:
+      return yup.object({
+        activityLevel: yup.string().required("Activity level is required"),
+      });
+    default:
+      return yup.object();
+  }
+};
 
 export default function ProfileSetupPage() {
+  const dispatch = useDispatch();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
@@ -72,21 +96,23 @@ export default function ProfileSetupPage() {
       country: "",
       activityLevel: "",
     },
-    validationSchema: validationSchema,
+    validationSchema: getValidationSchema(activeStep),
     onSubmit: async (values) => {
-      console.log("Profile setup:", values);
       try {
         const response = await updateUserProfile(values);
-        console.log("Profile updated successfully:", response);
+        dispatch(setUser(response.data));
         navigate('/goal-setup');
       } catch (error) {
-        console.log(error);
+        
       }
     },
   });
 
-  const handleNext = () => {
-    setActiveStep((prevStep) => prevStep + 1);
+  const handleNext = async () => {
+    const errors = await formik.validateForm();
+    if (Object.keys(errors).length === 0) {
+      setActiveStep((prevStep) => prevStep + 1);
+    }
   };
 
   const handleBack = () => {
