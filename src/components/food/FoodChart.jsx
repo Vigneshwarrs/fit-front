@@ -47,13 +47,9 @@ const NutritionChart = () => {
       try {
         setLoading(true);
         const { startDate, endDate } = getDateRange(timeFilter);
-        const response = await api(
+        const { data } = await api(
           `/nutrition?startDate=${startDate}&endDate=${endDate}&limit=100`
         );
-
-        if (!response.ok) throw new Error('Failed to fetch nutrition data');
-        
-        const {data} = await response;
         
         // Process the data for the chart
         const processedData = data.data.map(entry => ({
