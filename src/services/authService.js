@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { baseURL } from '../utils/api';
 
-const apiURL = `${baseURL}/auth`;
+const apiURL = `${baseURL}/api/auth`;
 
 export const signIn = (email, password) => {
   return axios.post(`${apiURL}/sign-in`, { email, password });
