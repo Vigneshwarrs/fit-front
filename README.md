@@ -1,70 +1,113 @@
-# Getting Started with Create React App
+# 🏋️ Fitness Tracker Backend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
+A robust backend service for the Fitness Tracker application, built with Node.js, Express, and MongoDB. Provides secure authentication, data management, and API endpoints for fitness tracking.
 
-## Available Scripts
+## 🚀 Technologies Used
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JSON Web Token (JWT)
+- Bcrypt for password hashing
+- Nodemailer for email services
 
-In the project directory, you can run:
+## 📦 Prerequisites
+- Node.js (v16+ recommended)
+- MongoDB (v5+ recommended)
+- npm or yarn
 
-### `npm start`
+## 🔧 Installation
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. Clone the repository
+```bash
+git clone https://your-repo-url/fitness-tracker-backend.git
+cd fitness-tracker-backend
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+2. Install dependencies
+```bash
+npm install
+# or
+yarn install
+```
 
-### `npm test`
+3. Create a `.env` file in the root directory with the following variables:
+```
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+EMAIL_USER=your_email
+EMAIL_PASS=your_email_password
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🖥️ Available Scripts
 
-### `npm run build`
+- `npm start`: Runs the server
+- `npm run dev`: Runs the server with nodemon for development
+- `npm test`: Runs test suite (currently not configured)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🌟 Key Features
+- User Authentication (Register/Login)
+- Secure password hashing
+- JWT-based authorization
+- RESTful API endpoints
+- MongoDB data persistence
+- Email notifications
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 📂 Project Structure
+```
+backend/
+├── config/
+├── controllers/
+├── middleware/
+├── models/
+├── routes/
+├── services/
+├── utils/
+└── index.js
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🔒 Authentication Flow
+1. User registers with email and password
+2. Password is hashed using bcrypt
+3. User receives JWT token
+4. Token used for subsequent authenticated requests
 
-### `npm run eject`
+## 📡 API Endpoints
+- `/api/auth`: Authentication routes
+- `/api/users`: User management
+- `/api/fitness`: Fitness tracking endpoints
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 🛡️ Security Measures
+- Password hashing with bcrypt
+- JWT token authentication
+- CORS protection
+- Environment variable configuration
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🧪 Testing
+- Currently uses basic error logging
+- Recommended: Implement Jest for unit and integration testing
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 📦 Dependency Management
+- Core Dependencies: Express, Mongoose, JWT
+- Development Dependencies: Nodemon, Bcrypt
+- Utility Dependencies: Axios, Date-fns, Multer
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 🔐 Environment Configuration
+Uses `dotenv` for secure environment variable management
 
-## Learn More
+## 🤝 Contributing
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 📄 License
+Distributed under the MIT License.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 💬 Contact
+Your Name - your.email@example.com
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Project Link: [https://github.com/yourusername/fitness-tracker-backend](https://github.com/yourusername/fitness-tracker-backend)
