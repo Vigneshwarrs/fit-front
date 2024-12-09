@@ -1,28 +1,26 @@
-# 🏋️ Fitness Tracker Backend
+# 🏋️ Fitness Tracker Frontend
 
 ## Overview
-A robust backend service for the Fitness Tracker application, built with Node.js, Express, and MongoDB. Provides secure authentication, data management, and API endpoints for fitness tracking.
+A comprehensive frontend application for tracking fitness progress, built with React and Material-UI. This application provides an intuitive interface for users to monitor their health and fitness journey.
 
 ## 🚀 Technologies Used
-- Node.js
-- Express.js
-- MongoDB
-- Mongoose
-- JSON Web Token (JWT)
-- Bcrypt for password hashing
-- Nodemailer for email services
+- React 18
+- Redux Toolkit
+- Material-UI
+- Chart.js
+- React Router
+- JWT Authentication
 
 ## 📦 Prerequisites
 - Node.js (v16+ recommended)
-- MongoDB (v5+ recommended)
 - npm or yarn
 
 ## 🔧 Installation
 
 1. Clone the repository
 ```bash
-git clone https://your-repo-url/fitness-tracker-backend.git
-cd fitness-tracker-backend
+git clone https://github.com/Vigneshwarr/fit-front.git
+cd fit-front
 ```
 
 2. Install dependencies
@@ -32,70 +30,52 @@ npm install
 yarn install
 ```
 
-3. Create a `.env` file in the root directory with the following variables:
-```
-PORT=5000
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_key
-EMAIL_USER=your_email
-EMAIL_PASS=your_email_password
-```
-
 ## 🖥️ Available Scripts
 
-- `npm start`: Runs the server
-- `npm run dev`: Runs the server with nodemon for development
-- `npm test`: Runs test suite (currently not configured)
+- `npm start`: Runs the app in development mode
+- `npm run build`: Builds the app for production
+- `npm test`: Launches the test runner
+- `npm run eject`: Ejects from Create React App configuration (use carefully)
 
 ## 🌟 Key Features
-- User Authentication (Register/Login)
-- Secure password hashing
-- JWT-based authorization
-- RESTful API endpoints
-- MongoDB data persistence
-- Email notifications
+- User authentication
+- Fitness tracking dashboards
+- Interactive charts and visualizations
+- Responsive design
+- State management with Redux
 
-## 📂 Project Structure
-```
-backend/
-├── config/
-├── controllers/
-├── middleware/
-├── models/
-├── routes/
-├── services/
-├── utils/
-└── index.js
-```
+## 🔒 State Management
+Uses Redux Toolkit with Redux Persist for maintaining application state and local storage persistence.
 
-## 🔒 Authentication Flow
-1. User registers with email and password
-2. Password is hashed using bcrypt
-3. User receives JWT token
-4. Token used for subsequent authenticated requests
-
-## 📡 API Endpoints
-- `/api/auth`: Authentication routes
-- `/api/users`: User management
-- `/api/fitness`: Fitness tracking endpoints
-
-## 🛡️ Security Measures
-- Password hashing with bcrypt
-- JWT token authentication
-- CORS protection
-- Environment variable configuration
+## 📊 Data Visualization
+Integrated with Chart.js and Recharts for creating interactive fitness progress charts.
 
 ## 🧪 Testing
-- Currently uses basic error logging
-- Recommended: Implement Jest for unit and integration testing
+Configured with:
+- Jest
+- React Testing Library
 
-## 📦 Dependency Management
-- Core Dependencies: Express, Mongoose, JWT
-- Development Dependencies: Nodemon, Bcrypt
-- Utility Dependencies: Axios, Date-fns, Multer
+## 📝 Form Handling
+- Formik for form management
+- Yup for form validation
 
-## 🔐 Environment Configuration
-Uses `dotenv` for secure environment variable management
+## 🔐 Authentication
+Uses JWT for secure user authentication and authorization.
+
+## 🚧 Browser Support
+- Modern browsers
+- Supports last versions of Chrome, Firefox, and Safari
+
+## 📌 Project Structure
+```
+src/
+├── components/
+├── pages/
+├── redux/
+├── services/
+├── utils/
+└── App.js
+```
 
 ## 🤝 Contributing
 1. Fork the repository
@@ -108,6 +88,4 @@ Uses `dotenv` for secure environment variable management
 Distributed under the MIT License.
 
 ## 💬 Contact
-Your Name - your.email@example.com
-
-Project Link: [https://github.com/yourusername/fitness-tracker-backend](https://github.com/yourusername/fitness-tracker-backend)
+Vigneshwaran S - vigneshwarrs@outlook.com
